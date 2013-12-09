@@ -221,6 +221,15 @@ var _writeChangelog = function(githubRepo, version) {
 
 // PUBLIC API
 exports.generate = function(githubRepo, version) {
+
+  var pkg = {};
+  try{
+    pkg = require('./package.json');
+  } catch (err) {}
+
+  githubRepo = githubRepo || pkg.homepage || '';
+  version = version || pkg.version || '';
+
   return es.child(child.exec(GIT_TAG_CMD)) // return the tag
     .pipe(_getPreviousTag()) // return the trimmed tag
     .pipe(_readGitLog('^fix|^feat|BREAKING')) // return all the last commits
