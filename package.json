@@ -10,8 +10,12 @@
     "event-stream": "*"
   },
   "devDependencies": {
-    "mocha": "*"
+    "mocha": "*",
+    "should":"*"
   },
+   "engines":{
+      "node":">= 0.6.0"
+   },
   "repository": {
     "type": "git",
     "url": "git://github.com/douglasduteil/conventional-changelog-wrapper.git"
