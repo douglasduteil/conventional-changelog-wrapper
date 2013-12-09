@@ -11,7 +11,6 @@ Generate a changelog from git metadata, using [these](https://docs.google.com/do
 ```javascript
 var changelogWrapper = require('conventional-changelog-wrapper');
 
-// Run the tests once
 changelogWrapper.generate(
   'https://github.com/douglasduteil/conventional-changelog-wrapper',
   'v1.0.0'
@@ -27,8 +26,9 @@ Just one fonction to generate a changelog
  * githubRepo : the github repository to use to link to commits in the changelog.
  * version : a string which contains the value of the version which is used by the generator.
 
-## Gulp
-```
+## Gulp friendly
+
+```javascript
 var pkg = require('./package.json');
 var gulp = require('gulp');
 var gulp_util = require('gulp-util');
