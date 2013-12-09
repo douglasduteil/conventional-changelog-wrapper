@@ -224,7 +224,7 @@ exports.generate = function(githubRepo, version) {
 
   var pkg = {};
   try{
-    pkg = require('./package.json');
+    pkg = require(path.resolve(process.cwd(), './package.json'));
   } catch (err) {}
 
   githubRepo = githubRepo || pkg.homepage || '';
