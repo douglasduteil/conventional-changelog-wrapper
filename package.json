@@ -1,34 +1,32 @@
 {
-  "name": "grunt-conventional-changelog",
-  "version": "1.0.0",
-  "description": "Generate a markdown changelog from git commit data",
-  "main": "index.js",
+  "name": "conventional-changelog-wrapper",
+  "version": "0.0.0",
+  "description": "Changelog generator from git metadata",
+  "main": "./index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
+  },
+  "dependencies": {
+    "event-stream": "*"
+  },
+  "devDependencies": {
+    "mocha": "*"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/btford/grunt-conventional-changelog.git"
+    "url": "git://github.com/douglasduteil/conventional-changelog-wrapper.git"
   },
   "keywords": [
-    "grunt",
     "changelog"
   ],
   "contributors": [
     { "name": "Brian Ford" },
     { "name": "Vojta Jína" }
   ],
+  "author": "Douglas Duteil",
   "license": "BSD",
-  "dependencies": {
-    "qq": "~0.3.5"
+  "bugs": {
+    "url": "https://github.com/douglasduteil/conventional-changelog-wrapper/issues"
   },
-  "devDependencies": {
-    "grunt": "~0.4.1",
-    "grunt-contrib-jshint": "~0.6",
-    "grunt-contrib-watch": "~0.4.4",
-    "grunt-release": "~0.3.3",
-    "grunt-simple-mocha": "~0.4.0",
-    "chai": "~1.7.2",
-    "sinon": "~1.7.3"
-  }
+  "homepage": "https://github.com/douglasduteil/conventional-changelog-wrapper"
 }
