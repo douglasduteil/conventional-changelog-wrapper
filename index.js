@@ -1,12 +1,8 @@
-// TODO(vojta): report errors, currently Q silence everything which really sucks
-// TODO(vojta): use grunt logger
-// TODO(vojta): nicer breaking changes (https://github.com/angular/angular.js/commit/07a58dd7669431d33b61f8c3213c31eff744d02a)
-// TODO(vojta): ignore "Merge pull request..." messages, or ignore them in git log ? (--no-merges)
+'use strict';
 
 var child = require('child_process');
+var es = require('event-stream');
 var util = require('util');
-var q = require('qq');
-
 
 var GIT_LOG_CMD = 'git log --grep="%s" -E --format=%s %s..HEAD';
 var GIT_TAG_CMD = 'git describe --tags --abbrev=0';
@@ -88,30 +84,6 @@ var currentDate = function() {
   };
 
   return util.format('%d-%s-%s', now.getFullYear(), pad(now.getMonth() + 1), pad(now.getDate()));
-};
-
-
-var readGitLog = function(grep, from) {
-  log('Reading git log since', from);
-
-  var deffered = q.defer();
-
-  child.exec(util.format(GIT_LOG_CMD, grep, '%H%n%s%n%b%n==END==', from), function(code, stdout) {
-    var commits = [];
-
-    stdout.split('\n==END==\n').forEach(function(rawCommit) {
-      var commit = parseRawCommit(rawCommit);
-      if (commit) {
-        commits.push(commit);
-      }
-    });
-
-    log('Parsed %s commits', commits.length);
-
-    deffered.resolve(commits);
-  });
-
-  return deffered.promise;
 };
 
 
@@ -203,37 +175,56 @@ var writeChangelog = function(writer, commits, version) {
   writer.section('Breaking Changes', sections.breaks);
 };
 
-
-var getPreviousTag = function() {
-  var deffered = q.defer();
-  child.exec(GIT_TAG_CMD, function(code, stdout) {
-    if (code) {
-      deffered.reject('Cannot get the previous tag.');
-    }
-    else {
-      deffered.resolve(stdout.replace('\n', ''));
-    }
+var _getPreviousTag = function() {
+  return es.map(function (tags, cb) {
+    cb(null, tags.trim() );
   });
-  return deffered.promise;
 };
 
+var _readGitLog = function(grep) {
+  return es.map(function (from, cb) {
+    log('Reading git log since', from);
+
+    child.exec(util.format(GIT_LOG_CMD, grep, '%H%n%s%n%b%n==END==', from), function(code, stdout) {
+      var commits = [];
+
+      stdout.split('\n==END==\n').forEach(function(rawCommit) {
+        var commit = parseRawCommit(rawCommit);
+        if (commit) {
+          commits.push(commit);
+        }
+      });
+
+      log('Parsed %s commits', commits.length);
+
+      cb(null, commits);
+    });
+
+  });
+};
+
+var _writeChangelog = function(githubRepo, version) {
+  return es.map(function (commits, cb) {
+    var buffer = {
+      data: '',
+      write: function(str) {
+        this.data += str;
+      }
+    };
+
+    var writer = new Writer(buffer, githubRepo);
+    writeChangelog(writer, commits, version);
+
+    cb(null, buffer.data );
+  });
+};
 
 // PUBLIC API
 exports.generate = function(githubRepo, version) {
-  var buffer = {
-    data: '',
-    write: function(str) {
-      this.data += str;
-    }
-  };
-  var writer = new Writer(buffer, githubRepo);
-
-  return getPreviousTag().then(function(tag) {
-    return readGitLog('^fix|^feat|BREAKING', tag).then(function(commits) {
-      writeChangelog(writer, commits, version);
-      return buffer.data;
-    });
-  });
+  return es.child(child.exec(GIT_TAG_CMD)) // return the tag
+    .pipe(_getPreviousTag()) // return the trimmed tag
+    .pipe(_readGitLog('^fix|^feat|BREAKING')) // return all the last commits
+    .pipe(_writeChangelog(githubRepo, version)); // return the final text
 };
 
 
