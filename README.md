@@ -11,12 +11,11 @@ Generate a changelog from git metadata, using [these](https://docs.google.com/do
 ```javascript
 var changelogWrapper = require('conventional-changelog-wrapper');
 
-changelogWrapper.generate(
-  'https://github.com/douglasduteil/conventional-changelog-wrapper',
-  'v1.0.0'
-).pipe(process.stdout);
-
+changelogWrapper.generate().pipe(process.stdout);
 ```
+
+It's using the `package.json` values by default.
+
 
 ## API
 
@@ -34,7 +33,7 @@ var gulp = require('gulp');
 var gulp_util = require('gulp-util');
 var es = require('event-stream');
 
-changelogWrapper.generate(pkg.homepage, 'v' + pkg.version)
+changelogWrapper.generate()
   .pipe(
     es.map(function fakeFile(content, cb){
       return cb(null, new gulp_util.File({
