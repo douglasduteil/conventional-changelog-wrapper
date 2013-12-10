@@ -1,6 +1,6 @@
 {
   "name": "conventional-changelog-wrapper",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Changelog generator from git metadata",
   "main": "./index.js",
   "scripts": {
